@@ -48,6 +48,17 @@ public:
             case 3: A[0].y -= 1; break;
         }
     }
+
+    void TangDoDai() {
+        DoDai++;
+    }
+
+    bool TuChamVaoThan() {
+        for (int i = 1; i < DoDai; i++)
+            if (A[0].x == A[i].x && A[0].y == A[i].y)
+                return true;
+        return false;
+    }
 };
 
 void VeTuong() {
@@ -99,7 +110,10 @@ int main() {
             gotoxy(35, 12); cout << "GAME OVER!";
             break;
         }
-
+        if (r.TuChamVaoThan()) {
+            gotoxy(35, 12); cout << "GAME OVER!";
+            break;
+        }
         gotoxy(r.A[0].x, r.A[0].y); cout << "X";
         gotoxy(r.A[1].x, r.A[1].y); cout << "o";
 
