@@ -6,13 +6,16 @@
 using namespace std;
 
 void gotoxy(int x, int y);
+
 void ShowCur(bool CursorVisibility) {
     HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO cursor = { 1, CursorVisibility };
     SetConsoleCursorInfo(handle, &cursor);
 }
 
-struct Point { int x, y; };
+struct Point {
+    int x, y;
+};
 
 class CONRAN {
 public:
@@ -29,7 +32,8 @@ public:
     void Ve() {
         for (int i = 0; i < DoDai; i++) {
             gotoxy(A[i].x, A[i].y);
-            cout << (i == 0 ? "X" : "o");
+            if (i == 0) cout << "X";
+            else cout << "o";
         }
     }
 
@@ -38,10 +42,10 @@ public:
             A[i] = A[i - 1];
 
         switch (Huong) {
-            case 0: A[0].x++; break;
-            case 1: A[0].y++; break;
-            case 2: A[0].x--; break;
-            case 3: A[0].y--; break;
+            case 0: A[0].x += 1; break;
+            case 1: A[0].y += 1; break;
+            case 2: A[0].x -= 1; break;
+            case 3: A[0].y -= 1; break;
         }
     }
 
@@ -64,50 +68,81 @@ Point TaoQua() {
     return q;
 }
 
+void VeTuong() {
+    for (int i = 0; i < 80; i++) {
+        gotoxy(i, 0); cout << "#";
+        gotoxy(i, 24); cout << "#";
+    }
+    for (int i = 0; i < 25; i++) {
+        gotoxy(0, i); cout << "#";
+        gotoxy(79, i); cout << "#";
+    }
+}
+
 int main() {
     ShowCur(0);
-    srand(time(0));
+    srand((unsigned int)time(0));
 
     CONRAN r;
-    int Huong = 0;
-    r.Ve();
-
     Point qua = TaoQua();
+    int Huong = 0;
+    int diem = 0;
+
+    VeTuong();
+    r.Ve();
     gotoxy(qua.x, qua.y); cout << "x";
+    gotoxy(0, 25); cout << "Diem: " << diem;
 
     while (true) {
         if (_kbhit()) {
             int key = _getch();
-            switch (key) {
-                case 'w': if (Huong != 1) Huong = 3; break;
-                case 's': if (Huong != 3) Huong = 1; break;
-                case 'a': if (Huong != 0) Huong = 2; break;
-                case 'd': if (Huong != 2) Huong = 0; break;
+            if (key == 0 || key == 224) { 
+                key = _getch();
+                switch (key) {
+                    case 72: if (Huong != 1) Huong = 3; break; 
+                    case 80: if (Huong != 3) Huong = 1; break;
+                    case 75: if (Huong != 0) Huong = 2; break;
+                    case 77: if (Huong != 2) Huong = 0; break;
+                }
+            } else {
+                switch (key) {
+                    case 'w': case 'W': if (Huong != 1) Huong = 3; break;
+                    case 's': case 'S': if (Huong != 3) Huong = 1; break;
+                    case 'a': case 'A': if (Huong != 0) Huong = 2; break;
+                    case 'd': case 'D': if (Huong != 2) Huong = 0; break;
+                }
             }
         }
 
         Point duoiCu = r.A[r.DoDai - 1];
         r.DiChuyen(Huong);
 
-        // Kiểm tra ăn mồi
-        if (r.A[0].x == qua.x && r.A[0].y == qua.y) {
-            r.TangDoDai(duoiCu);
-            qua = TaoQua();
-            gotoxy(qua.x, qua.y); cout << "x";
-        } else {
-            gotoxy(duoiCu.x, duoiCu.y);
-            cout << " ";
-        }
-        if (r.TuChamVaoThan()) {
+        if (r.A[0].x <= 0 || r.A[0].x >= 79 || r.A[0].y <= 0 || r.A[0].y >= 24 || r.TuChamVaoThan()) {
             gotoxy(35, 12); cout << "GAME OVER!";
             break;
         }
-        gotoxy(r.A[0].x, r.A[0].y); cout << "X";
-        gotoxy(r.A[1].x, r.A[1].y); cout << "o";
 
+        bool anQua = false;
+        if (r.A[0].x == qua.x && r.A[0].y == qua.y) {
+            r.TangDoDai();
+            r.A[r.DoDai - 1] = duoiCu;
+            diem++;
+            gotoxy(0, 25); cout << "Diem: " << diem << "   ";
+            qua = TaoQua();
+            gotoxy(qua.x, qua.y); cout << "x"; // Chỉ vẽ quả mới khi ăn được
+            anQua = true;
+        }
+        
+        gotoxy(r.A[0].x, r.A[0].y); cout << "X"; 
+        gotoxy(r.A[1].x, r.A[1].y); cout << "o"; 
+        if (!anQua) {
+            gotoxy(duoiCu.x, duoiCu.y); cout << " ";
+        }
+        
         Sleep(150);
     }
 
+    gotoxy(0, 26);
     return 0;
 }
 
