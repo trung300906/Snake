@@ -110,7 +110,10 @@ int main() {
             gotoxy(35, 12); cout << "GAME OVER!";
             break;
         }
-
+        if (r.TuChamVaoThan()) {
+            gotoxy(35, 12); cout << "GAME OVER!";
+            break;
+        }
         gotoxy(r.A[0].x, r.A[0].y); cout << "X";
         gotoxy(r.A[1].x, r.A[1].y); cout << "o";
 
