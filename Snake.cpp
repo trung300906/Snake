@@ -48,6 +48,17 @@ public:
             case 3: A[0].y -= 1; break;
         }
     }
+
+    void TangDoDai() {
+        DoDai++;
+    }
+
+    bool TuChamVaoThan() {
+        for (int i = 1; i < DoDai; i++)
+            if (A[0].x == A[i].x && A[0].y == A[i].y)
+                return true;
+        return false;
+    }
 };
 
 void VeTuong() {
